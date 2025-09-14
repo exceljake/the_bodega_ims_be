@@ -12,11 +12,8 @@ load_dotenv()
 app = Flask(__name__)
 
 # --- Config (MySQL) ---
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "DATABASE_URL",
-    "mysql+pymysql://root@localhost/the_bodega_development"
-)
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 
 # --- Extensions ---
 db = SQLAlchemy(app)
