@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Api, Resource
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 
@@ -10,6 +11,9 @@ load_dotenv()
 
 # --- Initialize app ---
 app = Flask(__name__)
+
+# --- Enable CORS ---
+CORS(app)
 
 # --- Config (MySQL) ---
 

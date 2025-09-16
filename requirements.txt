@@ -5,3 +5,4 @@ flask-restful
 marshmallow-sqlalchemy
 pymysql
 python-dotenv
+flask-cors
