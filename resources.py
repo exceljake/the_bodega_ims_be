@@ -12,6 +12,12 @@ class ProductListResource(Resource):
 
     def post(self):
         data = request.json
+        existing_sku = Product.query.filter_by(sku=data["sku"]).first()
+        existing_name = Product.query.filter_by(sku=data["sku"]).first()
+        if existing_sku:
+            return {"message": "SKU already existing"}, 422
+        if existing_name:
+            return {"message": "Name already existing"}, 422
         new_product = Product(
             name=data["name"],
             sku=data["sku"],

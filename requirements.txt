@@ -1,3 +1,4 @@
+
 flask
 flask-sqlalchemy
 flask-marshmallow
@@ -6,3 +7,4 @@ marshmallow-sqlalchemy
 pymysql
 python-dotenv
 flask-cors
+Flask-Migrate
