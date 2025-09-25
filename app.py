@@ -32,7 +32,7 @@ from models import Product, Shop, User
 from schemas import product_schema, products_schema, shop_schema, shops_schema
 
 # --- Import Resources ---
-from resources import ProductListResource, ProductResource, ShopListResource, ShopResource, UserLoginResource, UserListResource, UserResource, TestResource
+from resources import ProductListResource, ProductResource, ShopListResource, ShopResource, UserLoginResource, UserListResource, UserResource
 
 # --- Register Routes ---
 api.add_resource(ProductListResource, "/products")
