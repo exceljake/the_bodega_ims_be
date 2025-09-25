@@ -26,15 +26,17 @@ api = Api(app)
 migrate = Migrate(app, db)
 
 # --- Import Models and Schemas ---
-from models import Product
-from schemas import product_schema, products_schema
+from models import Product, Shop
+from schemas import product_schema, products_schema, shop_schema, shops_schema
 
 # --- Import Resources ---
-from resources import ProductListResource, ProductResource
+from resources import ProductListResource, ProductResource, ShopListResource, ShopResource
 
 # --- Register Routes ---
 api.add_resource(ProductListResource, "/products")
 api.add_resource(ProductResource, "/products/<int:id>")
+api.add_resource(ShopListResource, "/shops")
+api.add_resource(ShopResource, "/shops/<int:id>")
 
 # --- Bootstrap ---
 if __name__ == "__main__":
