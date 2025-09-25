@@ -2,8 +2,8 @@
 from flask import request
 from flask_restful import Resource
 from app import db
-from models import Product, Shop
-from schemas import product_schema, products_schema, shop_schema, shops_schema
+from models import Product, Shop, User
+from schemas import product_schema, products_schema, shop_schema, shops_schema, user_schema, users_schema
 
 class ProductListResource(Resource):
     def get(self):
@@ -64,6 +64,7 @@ class ShopListResource(Resource):
         )
         db.session.add(new_shop)
         db.session.commit()
+        new_shop.create_default_users()
         return shop_schema.dump(new_shop), 201
     
 class ShopResource(Resource):
@@ -84,3 +85,32 @@ class ShopResource(Resource):
         db.session.delete(shop)
         db.session.commit()
         return {"message": "Shop deleted successfully"}, 204
+    
+class UserLoginResource(Resource):
+    def post(self):
+        data = request.json
+        username = data.get("username")
+        password = data.get("password")
+        
+        if not username or not password:
+            return {"message": "Username and password required"}, 400
+        
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password) and user.is_active:
+            return {
+                "message": "Login successful",
+                "user": user_schema.dump(user)
+            }, 200
+        
+        return {"message": "Invalid credentials"}, 401
+
+class UserListResource(Resource):
+    def get(self):
+        users = User.query.all()
+        return users_schema.dump(users)
+
+class UserResource(Resource):
+    def get(self, id):
+        user = User.query.get_or_404(id)
+        return user_schema.dump(user)
