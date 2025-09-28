@@ -31,7 +31,7 @@ bcrypt = Bcrypt(app)
 from models import Product, Shop, User
 from schemas import product_schema, products_schema, shop_schema, shops_schema
 
-# --- Import Resources --
+# --- Import Resources ---
 from resources import ProductListResource, ProductResource, ShopListResource, ShopResource, UserLoginResource, UserListResource, UserResource
 
 # --- Register Routes ---
