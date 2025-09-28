@@ -1,6 +1,6 @@
 # schemas.py
 from app import ma, db
-from models import Product, Shop, User
+from models import Product, Shop, User, Document, DocumentLine
 
 class ProductSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -50,3 +50,40 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+
+class DocumentLineSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = DocumentLine
+        load_instance = True
+    
+    id = ma.auto_field()
+    parent_document_id = ma.auto_field()
+    quantity = ma.auto_field()
+    product_id = ma.auto_field()
+    price = ma.auto_field()
+    created_at = ma.auto_field()
+    updated_at = ma.auto_field()
+
+class DocumentSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Document
+        load_instance = True
+    
+    id = ma.auto_field()
+    document_type = ma.auto_field()
+    total_quantity = ma.auto_field()
+    received_by = ma.auto_field()
+    delivered_by = ma.auto_field()
+    supplier = ma.auto_field()
+    document_date = ma.auto_field()
+    created_at = ma.auto_field()
+    updated_at = ma.auto_field()
+    
+    # Include document lines in the response
+    document_lines = ma.Nested(DocumentLineSchema, many=True, dump_only=True)
+
+# Schema instances
+document_line_schema = DocumentLineSchema()
+document_lines_schema = DocumentLineSchema(many=True)
+document_schema = DocumentSchema()
+documents_schema = DocumentSchema(many=True)

@@ -63,3 +63,43 @@ class User(db.Model):
         from app import bcrypt  
         return bcrypt.check_password_hash(self.password_hash, password)
     
+class Document(db.Model):
+    __tablename__ = "documents"
+    id = db.Column(db.Integer, primary_key=True)
+    document_type = db.Column(db.String(3), nullable=False)  # 'in' or 'out'
+    total_quantity = db.Column(db.Float, nullable=False, default=0.0)
+    received_by = db.Column(db.String(100), nullable=False)
+    delivered_by = db.Column(db.String(100), nullable=False)
+    supplier = db.Column(db.String(100), nullable=False)
+    document_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    
+    # Relationship - when document is deleted, lines are also deleted
+    document_lines = db.relationship('DocumentLine', backref='document', lazy=True, cascade='all, delete-orphan')
+    
+    def update_product_quantities(self):
+        """Update product quantities based on document type and lines"""
+        for line in self.document_lines:
+            product = Product.query.get(line.product_id)
+            if product:
+                if self.document_type == 'in':
+                    # Add quantity for incoming documents
+                    product.quantity += line.quantity
+                elif self.document_type == 'out':
+                    # Subtract quantity for outgoing documents
+                    product.quantity -= line.quantity
+        db.session.commit()
+
+class DocumentLine(db.Model):
+    __tablename__ = "document_lines"
+    id = db.Column(db.Integer, primary_key=True)
+    parent_document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    price = db.Column(db.Float, nullable=False, default=0.0)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    
+    # Relationship to Product
+    product = db.relationship('Product', backref=db.backref('document_lines', lazy=True))

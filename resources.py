@@ -2,8 +2,9 @@
 from flask import request
 from flask_restful import Resource
 from app import db
-from models import Product, Shop, User
-from schemas import product_schema, products_schema, shop_schema, shops_schema, user_schema, users_schema
+from models import Product, Shop, User, Document, DocumentLine
+from schemas import product_schema, products_schema, shop_schema, shops_schema, user_schema, users_schema, document_schema, documents_schema, document_line_schema, document_lines_schema
+from datetime import datetime
 
 class ProductListResource(Resource):
     def get(self):
@@ -114,3 +115,94 @@ class UserResource(Resource):
     def get(self, id):
         user = User.query.get_or_404(id)
         return user_schema.dump(user)
+
+class DocumentListResource(Resource):
+    def get(self):
+        documents = Document.query.all()
+        return documents_schema.dump(documents)
+    
+    def post(self):
+        data = request.json
+        
+        # Validation
+        if data["document_type"] not in ["in", "out"]:
+            return {"message": "Document type must be 'in' or 'out'"}, 422
+        
+        if not data.get("document_lines") or len(data["document_lines"]) == 0:
+            return {"message": "Document must have at least one line"}, 422
+        
+        # Parse document_date
+        try:
+            document_date = datetime.strptime(data["document_date"], "%Y-%m-%d").date()
+        except ValueError:
+            return {"message": "Invalid document_date format. Use YYYY-MM-DD"}, 422
+        
+        # Create document
+        new_document = Document(
+            document_type=data["document_type"],
+            total_quantity=data.get("total_quantity", 0.0),
+            received_by=data["received_by"],
+            delivered_by=data["delivered_by"],
+            supplier=data["supplier"],
+            document_date=document_date
+        )
+        
+        db.session.add(new_document)
+        db.session.commit()  # Commit to get document ID
+        
+        # Create document lines
+        for line_data in data["document_lines"]:
+            # Check if product exists
+            product = Product.query.get(line_data["product_id"])
+            if not product:
+                return {"message": f"Product with ID {line_data['product_id']} not found"}, 422
+            
+            # Check if sufficient quantity for 'out' documents
+            if data["document_type"] == "out" and product.quantity < line_data["quantity"]:
+                return {"message": f"Insufficient quantity for product {product.name}. Available: {product.quantity}, Required: {line_data['quantity']}"}, 422
+            
+            new_line = DocumentLine(
+                parent_document_id=new_document.id,
+                quantity=line_data["quantity"],
+                product_id=line_data["product_id"],
+                price=line_data.get("price", 0.0)
+            )
+            db.session.add(new_line)
+        
+        db.session.commit()
+        
+        # Update product quantities
+        new_document.update_product_quantities()
+        
+        return document_schema.dump(new_document), 201
+
+class DocumentResource(Resource):
+    def get(self, id):
+        document = Document.query.get_or_404(id)
+        return document_schema.dump(document)
+    
+    def delete(self, id):
+        document = Document.query.get_or_404(id)
+        
+        # Reverse the quantity changes before deleting
+        for line in document.document_lines:
+            product = Product.query.get(line.product_id)
+            if product:
+                if document.document_type == 'in':
+                    # Reverse the addition by subtracting
+                    product.quantity -= line.quantity
+                elif document.document_type == 'out':
+                    # Reverse the subtraction by adding
+                    product.quantity += line.quantity
+        
+        db.session.delete(document)  # This will also delete document_lines due to cascade
+        db.session.commit()
+        
+        return {"message": "Document deleted successfully"}, 200
+    
+    
+    
+    
+    
+
+    

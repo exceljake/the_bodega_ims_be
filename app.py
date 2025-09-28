@@ -28,11 +28,11 @@ migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 
 # --- Import Models and Schemas ---
-from models import Product, Shop, User
-from schemas import product_schema, products_schema, shop_schema, shops_schema
+from models import Product, Shop, User, Document, DocumentLine
+from schemas import product_schema, products_schema, shop_schema, shops_schema, user_schema, users_schema, document_schema, documents_schema, document_line_schema, document_lines_schema
 
 # --- Import Resources ---
-from resources import ProductListResource, ProductResource, ShopListResource, ShopResource, UserLoginResource, UserListResource, UserResource
+from resources import ProductListResource, ProductResource, ShopListResource, ShopResource, UserLoginResource, UserListResource, UserResource, DocumentListResource, DocumentResource
 
 # --- Register Routes ---
 api.add_resource(ProductListResource, "/products")
@@ -42,6 +42,8 @@ api.add_resource(ShopResource, "/shops/<int:id>")
 api.add_resource(UserLoginResource, "/login")
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/users/<int:id>")
+api.add_resource(DocumentListResource, "/documents")
+api.add_resource(DocumentResource, "/documents/<int:id>")
 
 # --- Bootstrap ---
 if __name__ == "__main__":
