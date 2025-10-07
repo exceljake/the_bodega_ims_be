@@ -6,15 +6,15 @@ class ProductSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Product
         load_instance = True
-        fields = (
-            "id",
-            "name",
-            "sku",
-            "quantity",
-            "price",
-            "created_at",  
-            "updated_at"
-        )
+
+    id = ma.auto_field()
+    name = ma.auto_field()
+    sku = ma.auto_field()
+    quantity = ma.auto_field()
+    price = ma.auto_field()
+    shop_id = ma.auto_field()
+    created_at = ma.auto_field()
+    updated_at = ma.auto_field()
 
 product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
@@ -23,14 +23,13 @@ class ShopSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Shop
         load_instance = True
-        fields = (
-            "id",
-            "shop_name",
-            "address",
-            "contact_number",
-            "created_at",  
-            "updated_at"
-        )
+
+    id = ma.auto_field()
+    shop_name = ma.auto_field()
+    address = ma.auto_field()
+    contact_number = ma.auto_field()
+    created_at = ma.auto_field()
+    updated_at = ma.auto_field()
 
 shop_schema = ShopSchema()
 shops_schema = ShopSchema(many=True)
